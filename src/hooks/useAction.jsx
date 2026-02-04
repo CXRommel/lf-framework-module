@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useLocalStorage } from "@uidotdev/usehooks";
 
-export const useAction = ({ 
+export const useKeyAction = ({ 
     action, 
     executeOnInit = true, 
     initialValue = null, 
@@ -10,6 +10,25 @@ export const useAction = ({
     onError = () => {} 
 }) => {
     const [dbValue, setDbValue] = useLocalStorage(key, initialValue);
+    const [loading, execute, error] = useAction({
+        action,
+        executeOnInit,
+        onSuccess: ({ data, payload }) => {
+            setDbValue(data);
+            onSuccess({ data, payload });
+        },
+        onError
+    });
+    
+    return [dbValue, loading, execute, error];
+}
+
+export const useAction = ({
+    action,
+    executeOnInit = false,
+    onSuccess = () => {}, 
+    onError = () => {} 
+}) => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     
@@ -19,14 +38,13 @@ export const useAction = ({
         }
     }, []);
 
-    const execute = useCallback(() => {
+    const execute = useCallback((...params) => {
         setLoading(true);
-        action()
+        action(...params)
             .then((data) => {
-                setDbValue(data);
                 setLoading(false);
                 setError(null);
-                onSuccess();
+                onSuccess({ data, payload: params });
             })
             .catch((error) => {
                 setError(error);
@@ -35,5 +53,5 @@ export const useAction = ({
             });
     }, []);
 
-    return [dbValue, loading, execute, error] ;
+    return [loading, execute, error] ;
 }
