@@ -13,7 +13,7 @@ export const UserList = ({ users, countries, isLoading, onClick }) => {
           </tr>
         </thead>
         <tbody>
-          {users.map((item) => (
+          {users?.map((item) => (
             <UserListItem
               key={item.id}
               item={item}

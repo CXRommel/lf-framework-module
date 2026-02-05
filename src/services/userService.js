@@ -51,6 +51,11 @@ export const userService = {
     return newUser;
   },
   getUserById: (id) => {},
-  updateUser: (user) => {},
+  updateUser: async (user) => {
+    await sleep(RandomInt(500, 2000));
+    const index = usersTable.findIndex((item) => item.id === user.id);
+    usersTable[index] = user;
+    return user;
+  },
   deleteUser: (id) => {},
 };

@@ -1,17 +1,16 @@
+import { useState } from "react";
 import { UserList } from "./UserList";
 import { UserForm } from "./UserForm";
 
 import { LoadingButton } from "@/components";
-import { useAction, useKeyAction } from "@/hooks";
+import { useAction, useCollectionAction, useQuery } from "@/hooks";
 import { userService, notifyService, countryService } from "@/services";
 
 export const UsersListController = ({ onClick }) => {
 
-  // const value = useQuery('users', { byId: 1 });
-
-  const [users, usersLoading, usersExecute] = useKeyAction({
+  const [, usersLoading, usersExecute] = useCollectionAction({
     action: userService.getUsers,
-    key: "users",
+    collection: "users",
     executeOnInit: false,
     initialValue: [],
     onSuccess: () => notifyService.success("Lista de usuario actualizada."),
@@ -19,9 +18,9 @@ export const UsersListController = ({ onClick }) => {
       notifyService.error("Error al obtener la lista de usuarios."),
   });
 
-  const [countries, countriesLoading] = useKeyAction({
+  const [countries, countriesLoading] = useCollectionAction({
     action: countryService.getCountries,
-    key: "countries",
+    collection: "countries",
     executeOnInit: true,
     initialValue: [],
     onError: () => notifyService.error("Error al obtener la lista de países."),
@@ -36,53 +35,60 @@ export const UsersListController = ({ onClick }) => {
     onError: () => notifyService.error("Error al agregar usuario."),
   });
 
+  const [updateUserLoading, updateUserExecute] = useAction({
+    action: userService.updateUser,
+    executeOnInit: false,
+    onSuccess: ({data}) => {
+      usersExecute();
+      notifyService.success(`Usuario ${data.name} actualizado correctamente.`); 
+    },
+    onError: () => notifyService.error("Error al actualizar usuario."),
+  });
+
   return (
     <div>
       <UserForm
         countries={countries}
         onSubmit={(user) => newUserExecute(user) }
       />
-      <div className="flex justify-between items-center">
-        <div className="text-2xl font-bold">Lista de Usuarios</div>
-        <LoadingButton
-          label="Actualizar"
-          isLoading={usersLoading || countriesLoading}
-          onClick={usersExecute}
-        />
-      </div>
-      <UserList
-        users={users}
-        countries={countries}
-        isLoading={usersLoading || countriesLoading}
-        onClick={onClick}
-      />
+      <UsersLoader onClick={usersExecute} isLoading={usersLoading || countriesLoading} countries={countries}>
+        {
+          ({filteredUsers}) => {
+            return (<UserList
+              users={filteredUsers}
+              countries={countries}
+              onClick={onClick}
+            />);
+          }
+        }
+      </UsersLoader>
+      
     </div>
   );
 };
 
-// export const UsersListController = () => {
+export const UsersLoader = ({isLoading, onClick, children }) => {
+  const [search, setSearch] = useState("");
+  const users = useQuery({
+    collection: "users",
+    where: {
+      field: "name",
+      op: "contains",
+      value: search
+    }
+  });
 
-//     const [users, setUsers] = useState([]);
-//     const [loading, setLoading] = useState(true);
-
-//     useEffect(() => {
-//         handleUpdateData();
-//     }, []);
-
-//     const handleUpdateData = useCallback(() => {
-//         setLoading(true);
-//         userService.getUsers().then((users) => {
-//             setUsers(users);
-//             setLoading(false);
-
-//             notifyService.success('Lista de usuario actualizada.');
-//         });
-//     }, []);
-
-//     return (
-//         <_UsersListController
-//             services={{ users: userService }}
-//             data={{ users }}
-//             monitors={{ users: { getUsers: loading } }} />
-//     );
-// }
+  return (<div>
+    <div className="flex justify-between items-center">
+        <div className="text-2xl font-bold">Lista de Usuarios</div>
+        <input type="text" className="input" onChange={(e) => setSearch(e.target.value)} />
+        <LoadingButton
+          label="Actualizar"
+          isLoading={isLoading}
+          onClick={onClick}
+        />
+      </div>
+    {children({ filteredUsers: users })}
+  </div>)
+  
+}

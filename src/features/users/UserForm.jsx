@@ -16,6 +16,7 @@ export const UserForm = ({
   initialValue = DEFAULT_USER,
   onSubmit,
 }) => {
+  const [isExpanded, setIsExpanded] = useState(false);
   const [form, setForm] = useState(initialValue);
 
   const countryOptions = useMemo(() => {
@@ -40,13 +41,18 @@ export const UserForm = ({
 
   const handleSubmit = (e) => {
     e.preventDefault();
-
+    setIsExpanded(false);
     onSubmit?.(form);
   };
 
   const countrySelectValue = countryOptions.length === 0 ? "" : form.countryId;
 
   return (
+    <div className="mb-6">
+      <button onClick={() => setIsExpanded(!isExpanded)} className="btn btn-primary">
+        {isExpanded ? "Ocultar" : "Mostrar"}
+      </button>
+      {isExpanded && (
     <form onSubmit={handleSubmit} className="mb-6">
       <fieldset className="fieldset bg-base-200 border-base-300 rounded-box border p-4">
         <legend className="fieldset-legend">User</legend>
@@ -191,5 +197,7 @@ export const UserForm = ({
         </div>
       </fieldset>
     </form>
+    )}
+    </div>
   );
 };
