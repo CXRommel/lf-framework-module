@@ -1,6 +1,7 @@
 import { UserListItem } from "./UserListItem";
 
 export const UserList = ({ users, countries, isLoading, onClick }) => {
+  const _countries = countries ?? [];
   return (
     <div className="overflow-x-auto">
       <table className="table table-zebra">
@@ -17,7 +18,7 @@ export const UserList = ({ users, countries, isLoading, onClick }) => {
             <UserListItem
               key={item.id}
               item={item}
-              country={countries.find((c) => c.id === item.countryId)}
+              country={_countries.find((c) => c.id === item.countryId)}
               onClick={onClick}
             />
           ))}

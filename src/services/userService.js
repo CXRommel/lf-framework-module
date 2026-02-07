@@ -40,6 +40,7 @@ const usersTable = [
 ];
 
 export const userService = {
+  collection: "users",
   getUsers: async () => {
     await sleep(RandomInt(1000, 5000));
     return usersTable;

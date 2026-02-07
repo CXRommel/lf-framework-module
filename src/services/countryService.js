@@ -7,6 +7,7 @@ function RandomInt(min, max) {
 }
 
 export const countryService = {
+  collection: "countries",
   getCountries: async () => {
     await sleep(RandomInt(1000, 2000));
 
