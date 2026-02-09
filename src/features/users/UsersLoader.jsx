@@ -1,31 +1,36 @@
 import { useState } from "react";
 
-import { userService } from "@/services";
+// import { userService } from "@/sdk";
 import { LoadingButton } from "@/components";
 import { useQuery } from "@/hooks";
 
-export const UsersLoader = ({isLoading, onClick, children }) => {
+export const UsersLoader = ({ isLoading, onClick, children }) => {
   const [search, setSearch] = useState("");
   const users = useQuery({
-    collection: userService.collection,
+    collection: "users",
     where: {
       field: "name",
       op: "contains",
-      value: search
-    }
+      value: search,
+    },
   });
 
-  return (<div>
-    <div className="flex justify-between items-center">
+  return (
+    <div>
+      <div className="flex justify-between items-center">
         <div className="text-2xl font-bold">Lista de Usuarios</div>
-        <input type="text" className="input" onChange={(e) => setSearch(e.target.value)} />
+        <input
+          type="text"
+          className="input"
+          onChange={(e) => setSearch(e.target.value)}
+        />
         <LoadingButton
           label="Actualizar"
           isLoading={isLoading}
           onClick={onClick}
         />
       </div>
-    {children({ filteredUsers: users })}
-  </div>)
-  
-}
+      {children({ filteredUsers: users })}
+    </div>
+  );
+};

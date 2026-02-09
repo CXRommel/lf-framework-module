@@ -1,62 +1,56 @@
-function sleep(ms) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
+import { userClient } from "@/sdk/userClient";
+
+const db = {
+  collection: (collectionName) => {
+    return {
+      bulkWrite: (data) => {
+        localStorage.setItem(collectionName, JSON.stringify(data));
+        window.dispatchEvent(new Event("storage"));
+      },
+    };
+  },
+};
+
+function createAction(client, action, service) {
+  return (...params) => {
+    return client[action](params).then((result) => {
+      service.onSuccess({ action, payload: result, params, db });
+    });
+  };
 }
 
-function RandomInt(min, max) {
-  return Math.floor(Math.random() * (max - min + 1)) + min;
-}
+function createService(client, service) {
+  let result = {};
 
-const usersTable = [
-  {
-    id: 1,
-    name: "John Doe",
-    countryId: 1,
-    position: "Developer",
-    description: "Desktop Developer",
-    avatar: "https://api.dicebear.com/9.x/adventurer/svg?seed=Eliza",
-    email: "john.doe@example.com",
-    phone: "123-456-7890",
-  },
-  {
-    id: 2,
-    name: "Jane Doe",
-    countryId: 2,
-    position: "Designer",
-    description: "Web Designer",
-    avatar: "https://api.dicebear.com/9.x/adventurer/svg?seed=Valentina",
-    email: "jane.doe@example.com",
-    phone: "123-456-7890",
-  },
-  {
-    id: 3,
-    name: "Alice Smith",
-    countryId: 3,
-    position: "Manager",
-    description: "Project Manager",
-    avatar: "https://api.dicebear.com/9.x/adventurer/svg?seed=Alicia",
-    email: "alice.smith@example.com",
-    phone: "123-456-7890",
-  },
-];
+  Object.keys(client).forEach((key) => {
+    result[key] = createAction(client, key, service);
+  });
+
+  return result;
+}
 
 export const userService = {
-  collection: "users",
-  getUsers: async () => {
-    await sleep(RandomInt(1000, 5000));
-    return usersTable;
+  onSuccess: ({ action, payload, params, db }) => {
+    console.log({ action, payload, params, db });
+    switch (action) {
+      case "getUsers":
+        db.collection("users").bulkWrite(payload);
+        break;
+      case "createUser":
+        // db.collection("users").insertOne(payload);
+        break;
+      case "updateUser":
+        // db.collection("users").updateOne({ id: params.id }, payload);
+        break;
+      case "deleteUser":
+        // db.collection("users").deleteOne({ id: params.id });
+        break;
+    }
   },
-  addUser: async (user) => {
-    await sleep(RandomInt(500, 2000));
-    const newUser = { ...user, id: usersTable.length + 1 };
-    usersTable.push(newUser);
-    return newUser;
-  },
-  getUserById: (id) => {},
-  updateUser: async (user) => {
-    await sleep(RandomInt(500, 2000));
-    const index = usersTable.findIndex((item) => item.id === user.id);
-    usersTable[index] = user;
-    return user;
-  },
-  deleteUser: (id) => {},
+  onError: () => {},
 };
+
+const tt = createService(userClient, userService);
+tt.getUsers();
+
+// console.log(createService(userClient, userService));
