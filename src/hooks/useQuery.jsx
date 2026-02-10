@@ -3,8 +3,8 @@ import { useLocalStorage } from "@uidotdev/usehooks";
 
 export const useQuery = ({ collection, where }) => {
   const [table] = useLocalStorage(collection);
-  console.log(table);
 
+  console.log("useQuery", collection, table);
   const result = useMemo(() => {
     switch (where?.op) {
       case "==":
@@ -23,6 +23,13 @@ export const useQuery = ({ collection, where }) => {
 
 export const Query = ({ collection, name, defaultValue, where, setData }) => {
   const result = useQuery({ collection, where });
+
+  useEffect(() => {
+    setData((prev) => ({
+      ...prev,
+      [name]: result ?? defaultValue,
+    }));
+  }, []);
 
   useDeepCompareEffect(() => {
     setData((prev) => ({

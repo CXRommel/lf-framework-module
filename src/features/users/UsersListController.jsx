@@ -6,138 +6,73 @@
 //   CollectionAction,
 // } from "@/hooks";
 // import { userService, notifyService, countryService } from "@/sdk";
+import { withReactive } from "@/reactive";
 
 import { UserList } from "./UserList";
-// import { UserForm } from "./UserForm";
+import { UserForm } from "./UserForm";
 import { UsersLoader } from "./UsersLoader";
 
-export const UsersListController = () => {
-  return (
-    <div>
-      <UsersLoader onClick={() => {}} isLoading={false}>
-        {({ filteredUsers }) => {
-          return <UserList users={filteredUsers} onClick={() => {}} />;
-        }}
-      </UsersLoader>
-    </div>
-  );
-};
+// export const UsersListController = () => {
+//   return (
+//     <div>
+//       <UsersLoader onClick={() => {}} isLoading={false}>
+//         {({ filteredUsers }) => {
+//           return <UserList users={filteredUsers} onClick={() => {}} />;
+//         }}
+//       </UsersLoader>
+//     </div>
+//   );
+// };
 
-// const ReactiveConfig = {
-//   services: {
-//     users: {
-//       collection: userService.collection,
-//       getUsers: userService.getUsers,
-//       addUser: userService.addUser,
-//       updateUser: userService.updateUser,
-//       deleteUser: userService.deleteUser
-//     },
-//     countries: {
-//       collection: countryService.collection,
-//       getCountries: countryService.getCountries
-//     }
-//   }
-// }
+export const UsersListController = withReactive(
+  ({ data, services, monitors, onClick }) => {
+    const isLoading = false; //monitors.users.getUsers || monitors.users.addUser || monitors.countries.getCountries;
 
-// export const withReactive = (Component, options) => {
-
-//   const Wrapper = ({ ...props }) => {
-//     const [data, setData] = useState({});
-//     const [services, setServices] = useState({});
-//     const [inits, setInits] = useState([]);
-
-//     useEffect(() => {
-//       setInits(options
-//         .init({ services: ReactiveConfig.services, ...props })
-//         .map((init, key) =>
-//         {
-//           return (<CollectionAction
-//             key={key}
-//             actionName={init.actionName}
-//             collection={init.collection}
-//             action={init.execute}
-//             initialValue={init.initialValue}
-//             setServices={setServices}
-//           />)
-//         }
-//       ));
-//     }, []);
-
-//     return (<>
-//         {inits}
-//         {options.queries({ services: ReactiveConfig.services, ...props }).map((query) => (
-//           <Query
-//             key={query.name}
-//             collection={query.collection}
-//             name={query.name}
-//             defaultValue={query.defaultValue}
-//             where={query.where}
-//             setData={setData}
-//             />
-//         ))}
-//         <Component services={services} data={data} {...props} />
-//       </>);
-//   }
-
-//   return Wrapper;
-// }
-
-// export const UsersListController = withReactive(
-//   ({ data, services, monitors, onClick }) => {
-//     const isLoading = false;//monitors.users.getUsers || monitors.users.addUser || monitors.countries.getCountries;
-
-//     return (
-//       <div>
-//         <UserForm
-//           countries={data.countries}
-//           onSubmit={(user) => services?.users?.addUser(user) }
-//         />
-//         <UsersLoader onClick={services?.users?.getUsers} isLoading={isLoading}>
-//           {
-//             ({filteredUsers}) => {
-//               return (<UserList
-//                 users={filteredUsers}
-//                 countries={data.countries}
-//                 onClick={onClick}
-//               />);
-//             }
-//           }
-//         </UsersLoader>
-
-//       </div>);
-//   },
-//   {
-//     init: ({ services}) => [{
-//       actionName: "countries.getCountries",
-//       collection: services.countries.collection,
-//       execute: services.countries.getCountries,
-//       initialValue: []
-//     },
-//     {
-//       actionName: "users.getUsers",
-//       collection: services.users.collection,
-//       execute: services.users.getUsers,
-//       initialValue: []
-//     }],
-//     queries: ({ services }) => [
-//       {
-//         collection: services.countries.collection,
-//         name: "countries",
-//         defaultValue: []
-//       },
-//       {
-//         collection: services.users.collection,
-//         name: "users",
-//         defaultValue: []
-//       }
-//     ],
-//     monitors: ({ services }) => [
-//       services.users.getUsers,
-//       services.users.addUser,
-//       services.countries.getCountries
-//     ]
-//   }
-// );
+    console.log("data", data);
+    return (
+      <div>
+        <UserForm
+          countries={data.countries}
+          onSubmit={(user) => services.users.addUser(user)}
+        />
+        <UsersLoader onClick={services.users.getUsers} isLoading={isLoading}>
+          {({ filteredUsers }) => {
+            return (
+              <UserList
+                users={filteredUsers}
+                countries={data.countries}
+                onClick={onClick}
+              />
+            );
+          }}
+        </UsersLoader>
+      </div>
+    );
+  },
+  {
+    init: ({ services }) => {
+      services.countries.getCountries();
+      services.users.getUsers();
+    },
+    queries: ({}) => [
+      {
+        collection: "countries",
+        name: "countries",
+        defaultValue: [],
+      },
+      {
+        collection: "users",
+        name: "users",
+        defaultValue: [],
+      },
+    ],
+    // monitors: ({ services }) => [
+    //   services.users.getUsers,
+    //   services.users.addUser,
+    //   services.countries.getCountries
+    // ]
+  },
+);
 
 // export const _UsersListContoller = ({ data, services, monitors, onClick }) => {
 //   const isLoading =

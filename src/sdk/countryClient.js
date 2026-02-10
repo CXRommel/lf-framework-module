@@ -6,8 +6,7 @@ function RandomInt(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
-export const countryService = {
-  collection: "countries",
+export const countryClient = {
   getCountries: async () => {
     await sleep(RandomInt(1000, 2000));
 

@@ -1,6 +1,5 @@
 import { UsersListView } from "./features/users";
 import { Toaster } from "react-hot-toast";
-import { userService } from "@/services";
 
 function App() {
   return (
