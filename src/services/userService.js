@@ -1,9 +1,8 @@
 import { userClient } from "@/sdk/userClient";
 import { createService } from "@/reactive";
 
-export const userReactive = {
+export const userReactor = {
   onSuccess: ({ action, payload, params, db }) => {
-    console.log({ action, payload });
     switch (action) {
       case "getUsers":
         db.collection("users").bulkWrite(payload);
@@ -22,4 +21,4 @@ export const userReactive = {
   onError: () => {},
 };
 
-export const userService = createService(userClient, userReactive);
+export const userService = createService(userClient, userReactor);

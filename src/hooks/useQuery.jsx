@@ -4,7 +4,6 @@ import { useLocalStorage } from "@uidotdev/usehooks";
 export const useQuery = ({ collection, where }) => {
   const [table] = useLocalStorage(collection);
 
-  console.log("useQuery", collection, table);
   const result = useMemo(() => {
     switch (where?.op) {
       case "==":

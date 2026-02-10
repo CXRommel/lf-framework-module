@@ -6,11 +6,9 @@ const db = {
         window.dispatchEvent(new Event("storage"));
       },
       insertOne: (data) => {
-        console.log("data", data);
         const collection =
           JSON.parse(localStorage.getItem(collectionName)) || [];
         collection.push(data);
-        console.log(collection);
         localStorage.setItem(collectionName, JSON.stringify(collection));
         window.dispatchEvent(new Event("storage"));
       },
@@ -20,9 +18,22 @@ const db = {
 
 function createAction(client, action, service) {
   return (...params) => {
-    return client[action](...params).then((result) => {
-      service.onSuccess({ action, payload: result, params, db });
-    });
+    window.dispatchEvent(
+      new CustomEvent(`lf:${action}:start`, { detail: { action } }),
+    );
+    return client[action](...params)
+      .then((result) => {
+        service.onSuccess({ action, payload: result, params, db });
+        window.dispatchEvent(
+          new CustomEvent(`lf:${action}:success`, { detail: { action } }),
+        );
+      })
+      .catch((error) => {
+        service.onError({ action, error, params, db });
+        window.dispatchEvent(
+          new CustomEvent(`lf:${action}:error`, { detail: { action } }),
+        );
+      });
   };
 }
 
