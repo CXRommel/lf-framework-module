@@ -15,10 +15,6 @@ export const withReactive = (Component, options) => {
     const [monitors, setMonitors] = useState(buildMonitors(options.monitors()));
 
     useEffect(() => {
-      options.init({ services, ...props });
-    }, []);
-
-    useEffect(() => {
       const _monitors = options.monitors();
 
       const handleOnStart = (event) => {
@@ -44,6 +40,10 @@ export const withReactive = (Component, options) => {
           window.removeEventListener(`lf:${monitor}:error`, handleOnError);
         });
       };
+    }, []);
+
+    useEffect(() => {
+      options.init({ services, ...props });
     }, []);
 
     const handleOnSetData = (data) => {

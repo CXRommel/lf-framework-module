@@ -1,10 +1,11 @@
-import { UsersListView } from "./features/users";
 import { Toaster } from "react-hot-toast";
+
+import { StudentDetailsController } from "@/features/students/StudenDetailsController";
 
 function App() {
   return (
     <ReactiveProvider>
-      <UsersListView />
+      <StudentDetailsController id={2} />
       <Toaster />
     </ReactiveProvider>
   );

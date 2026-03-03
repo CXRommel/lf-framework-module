@@ -6,8 +6,12 @@ import { UsersLoader } from "./UsersLoader";
 
 export const UsersListController = withReactive(
   ({ data, services, monitors, onClick }) => {
+    console.log(monitors);
+
     const isLoading =
-      monitors.getUsers || monitors.addUser || monitors.getCountries;
+      monitors.getUsers.executing ||
+      monitors.addUser.executing ||
+      monitors.getCountries.executing;
 
     return (
       <div>
@@ -46,6 +50,6 @@ export const UsersListController = withReactive(
         defaultValue: [],
       },
     ],
-    monitors: ({}) => ["getUsers", "addUser", "getCountries"],
+    monitors: () => ["getUsers", "addUser", "getCountries"],
   },
 );
